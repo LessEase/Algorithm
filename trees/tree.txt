@@ -1,0 +1,15 @@
+avl tree
+red black tree
+sb tree
+splay tree
+N-ary tree
+Trie tree
+Suffix tree
+Huffman tree
+b(+) tree
+R tree
+Counted-B tree
+kd tree
+decision tree
+quad tree
+a,b tree
