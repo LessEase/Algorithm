@@ -8,14 +8,31 @@
 #ifndef _RBTREE_H
 #define _RBTREE_H
 
-template<class T>
+enum Color{ RED, BLACK };
+
+struct Node{
+    Node* left;
+    Node* right;
+    Node* parent;
+    int val;
+    Color color;
+    Node(){
+        parent = left = right = NULL;
+        color = Color::RED;
+    }
+
+};
+
 class RBTree{
     public: 
-        bool Insert(T val);
-        bool Delete(T val);
-        bool IsContains(T val);
+        RBTree():root(NULL){}
+        bool Insert(int val);
+        bool Delete(int val);
+        bool IsContains(int val);
     private:
-        
+        void left_rotate(Node* cur_node); 
+        void right_rotate(Node* cur_node);
+        Node* root;
 
 };
 
