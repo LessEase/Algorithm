@@ -53,3 +53,76 @@ void RBTree::right_rotate(Node* pivot){
     pivot_left->right = pivot;
 }
 
+
+void RBTree::Insert(int val){
+    
+    Node* node = new Node(val);
+    
+    if(root == NULL){
+        node->color = Color::BLACK;
+        root = node;
+        return;
+    }
+
+    Node* parent = NULL;
+    Node* ptr = root;
+    //insert like a normal bst
+    while(ptr!=NULL){
+        parent = ptr; 
+        if(ptr->val == val) return;
+        if(ptr->val<val)
+            ptr = ptr->right;
+        if(ptr->val>val)
+            ptr = ptr->left;
+    }
+
+    if(parent->val>val) {
+        parent->left = node;
+    }else{
+        parent->right = node;
+    }
+                         
+    node->parent = parent;
+
+    //insert_rebalance
+    insert_rebalance(node);
+}
+
+void RBTree::insert_rebalance(Node* cur_node){
+
+    if(cur_node->Parent()==NULL){
+        cur_node->color = Color::BLACK;
+    }else if(cur_node->Parent()->color==Color::BLACK){
+        return;
+    }else if(cur_node->Uncle()!=NULL&&cur_node->Uncle()->color==Color::RED){
+        cur_node->Parent()->color = Color::BLACK; 
+        cur_node->Uncle()->color = Color::BLACK; 
+        cur_node->Ancestor()->Color = Color::RED;
+        insert_rebalance(cur_node->Ancestor());
+    }
+    //(cur_node->Uncle()==NULL||cur_node->Uncle()->color==Color::BLACK)
+    else{
+        if(cur_node==cur_node->Parent()->right&&cur_node->Parent()==cur_node->Ancestor()->left){
+            left_rotate(cur_node->Parent());
+            cur_node = cur_node->left;
+            insert_rebalance(cur_node);
+        }else if(cur_node==cur_node->Parent()->left&&cur_node->Parent()==cur_node->Ancestor()->right){
+            right_rotate(cur_node->Parent());
+            cur_node = cur_node->right;
+            insert_rebalance(cur_node);
+
+        }else if(cur_node==cur_node->Parent()->right&&cur_node->Parent()==cur_node->Ancestor()->right){
+            cur_node->Parent()->color =  Color::BLACK;
+            cur_node->Ancestor()->color =  Color::RED;
+            left_rotate(cur_node->Ancestor());
+        }else{
+            cur_node->Parent()->color =  Color::BLACK;
+            cur_node->Ancestor()->color =  Color::RED;
+            right_rotate(cur_node->Ancestor());
+        }
+
+         
+    }
+}
+
+

@@ -8,15 +8,31 @@
 #ifndef _RBTREE_H
 #define _RBTREE_H
 
+#include <vector>
 enum Color{ RED, BLACK };
 
-struct Node{
+class Node{
+  public:
+    
+      Node* Parent(){
+          return parent;
+      }
+
+      Node* Ancestor(){
+          return parent->parent; 
+      }
+
+      Node* Uncle(){
+          if(parent->parent->left==parent) return parent->parent->right; 
+          return parent->parent->left;
+      }
+    
     Node* left;
     Node* right;
     Node* parent;
     int val;
     Color color;
-    Node(){
+    Node(int val):val(val){
         parent = left = right = NULL;
         color = Color::RED;
     }
@@ -26,15 +42,28 @@ struct Node{
 class RBTree{
     public: 
         RBTree():root(NULL){}
-        bool Insert(int val);
+        void Insert(int val);
         bool Delete(int val);
         bool IsContains(int val);
+        bool CheckOrder();
+
     private:
+        void insert_rebalance(Node* cur_node);
         void left_rotate(Node* cur_node); 
         void right_rotate(Node* cur_node);
+        std::vector<int> get_all_nums();
         Node* root;
-
 };
+
+//check left rotate
+//check right rotate
+//check insert
+//check delete
+//stress testing
+
+
+}
+
 
 
 #endif
