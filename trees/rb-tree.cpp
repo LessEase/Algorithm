@@ -10,6 +10,10 @@ using namespace std;
 
 #include "rb-tree.h"
 
+bool IsBlack(Node* node){
+    return node==NULL||node->color == Color::BLACK;
+}
+
 //prereq: pivot!=NULL and pivot->right !=NULL 
 //and pivot->right->left != NULL
 void RBTree::left_rotate(Node* pivot){
@@ -120,8 +124,102 @@ void RBTree::insert_rebalance(Node* cur_node){
             cur_node->Ancestor()->color =  Color::RED;
             right_rotate(cur_node->Ancestor());
         }
-
          
+    }
+}
+
+Node* RBTree::find_node(int val){
+    Node* ptr = root;
+    while(ptr!=NULL){
+        if(ptr->val > val) ptr = ptr->left;
+        else if(ptr->val < val) ptr = ptr->right;
+        else return ptr;
+    }
+
+    return ptr;
+}
+
+Node* RBTree::IsContains(int val){
+    return find_node(val) != NULL;
+}
+
+Node* RBTree::find_post_successor(Node* cur_node){
+    Node* ptr = cur_node->right;
+    while(ptr->left!=NULL){
+        ptr = ptr->left;
+    }
+    return ptr;
+}
+
+bool RBTree::Delete(int val){
+
+    Node* del_node = find_node(val);
+    //未找到要删除的节点
+    if(del_node==NULL) return false;
+
+    Node* real_node = NULL;
+    Node* repl_node = NULL;
+    if(del_node->left==NULL||del_node->right==NULL){
+        real_node = del_node;   
+    }else{
+        real_node = find_post_successor(del_node);
+    }
+
+    if(real_node->left!=NULL){
+        repl_node = real_node->left;
+    }else {
+        repl_node = real_node->right;
+    }
+
+    repl_node->parent = real_node->parent; 
+    if(real_node->parent==NULL){
+       root = repl_node; 
+    }else{
+        if(real_node==real_node->parent->left){
+            real_node->parent->left = repl_node;
+        }else{
+            real_node->parent->right = repl_node;
+        }
+    }
+    if(real_node!=del_node){
+        del_node->val = real_node->val;
+    }
+
+    if(real_node->color==Color::BLACK){
+        delete_rebalance(repl_node);
+    }
+
+    return true;
+}
+
+void RBTree::delete_rebalance(Node* cur_node){
+    if(cur_node->parent==NULL) {
+        cur_node->color = Color::BLACK;
+        return;
+    }
+    Node* sibling = NULL;
+    while(cur_node!=root&& cur_node->color==Color::BLACK){
+        if(cur_node->Parent()->left!=cur_node)
+            sibling = cur_node->Parent()->left;
+        else
+            sibling = cur_node->Parent()->right;
+        if(sibling->color == Color::RED){
+            
+        }else{
+            if(IsBlack(sibling->left)&&IsBlack(sibling->right)){
+                sibling->color = Color::RED;
+                cur_node = cur_node->parent;
+            }else if(IsBlack(sibling->right)){
+                 
+            }else{
+                //!IsBlack(sibling->right)
+                sibling->left->color = Color::RED;
+                cur_node->parent->color = Color::BLACK;
+                left_rotate(cur_node->Parent());
+                cur_node = cur_node->parent;
+            }
+
+        }
     }
 }
 
