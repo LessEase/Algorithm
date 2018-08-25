@@ -9,7 +9,7 @@
 #define _RBTREE_H
 
 #include <vector>
-enum Color{ RED, BLACK } ;
+enum class Color{ RED, BLACK };
 
 class Node{
   public:
@@ -71,7 +71,6 @@ class RBTree{
 //stress testing
 
 
-}
 
 
 

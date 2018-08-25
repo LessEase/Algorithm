@@ -15,11 +15,11 @@ bool IsBlack(Node* node){
 }
 
 //prereq: pivot!=NULL and pivot->right !=NULL 
-//and pivot->right->left != NULL
 void RBTree::left_rotate(Node* pivot){
    Node* pivot_right = pivot->right;
    pivot->right = pivot_right->left;
-   pivot_right->left->parent = pivot;
+   if(pivot_right->left!=NULL) 
+        pivot_right->left->parent = pivot;
    pivot_right->parent = pivot->parent;
 
    if(pivot->parent==NULL){
@@ -37,20 +37,22 @@ void RBTree::left_rotate(Node* pivot){
 }
 
 //prereq:: pivot!=NULL and pivot->right != NULL
-//and pivot->left->right != NULL
 void RBTree::right_rotate(Node* pivot){
     Node* pivot_left = pivot->left;
     pivot->left = pivot_left->right;
+
+    if(pivot_left->right!=NULL)
+        pivot_left->right->parent = pivot->parent;
+
     pivot_left->parent = pivot->parent;
-    pivot_left->right->parent = pivot->parent;
     
     if(pivot->parent==NULL){
         root = pivot_left;  
     }else{
        if(pivot->parent->left==pivot){
-           pivot->parent->left = pivot_right;
+           pivot->parent->left = pivot_left;
        }else{
-           pivot->parent->right = pivot_right;
+           pivot->parent->right = pivot_left;
         }
     }
     pivot->parent = pivot_left;
@@ -61,6 +63,7 @@ void RBTree::right_rotate(Node* pivot){
 void RBTree::Insert(int val){
     
     Node* node = new Node(val);
+    node->color = Color::RED;
     
     if(root == NULL){
         node->color = Color::BLACK;
@@ -73,7 +76,11 @@ void RBTree::Insert(int val){
     //insert like a normal bst
     while(ptr!=NULL){
         parent = ptr; 
-        if(ptr->val == val) return;
+        //val is already in the tree
+        if(ptr->val == val) {
+            delete node;
+            return;
+        }
         if(ptr->val<val)
             ptr = ptr->right;
         if(ptr->val>val)
@@ -88,6 +95,7 @@ void RBTree::Insert(int val){
                          
     node->parent = parent;
 
+
     //insert_rebalance
     insert_rebalance(node);
 }
@@ -96,16 +104,19 @@ void RBTree::insert_rebalance(Node* cur_node){
 
     if(cur_node->Parent()==NULL){
         cur_node->color = Color::BLACK;
+        return; 
     }else if(cur_node->Parent()->color==Color::BLACK){
         return;
     }else if(cur_node->Uncle()!=NULL&&cur_node->Uncle()->color==Color::RED){
         cur_node->Parent()->color = Color::BLACK; 
         cur_node->Uncle()->color = Color::BLACK; 
-        cur_node->Ancestor()->Color = Color::RED;
+        cur_node->Ancestor()->color = Color::RED;
         insert_rebalance(cur_node->Ancestor());
     }
     //(cur_node->Uncle()==NULL||cur_node->Uncle()->color==Color::BLACK)
+    //when p.color==red, p.p.color must be not null
     else{
+        
         if(cur_node==cur_node->Parent()->right&&cur_node->Parent()==cur_node->Ancestor()->left){
             left_rotate(cur_node->Parent());
             cur_node = cur_node->left;
@@ -139,7 +150,7 @@ Node* RBTree::find_node(int val){
     return ptr;
 }
 
-Node* RBTree::IsContains(int val){
+bool RBTree::IsContains(int val){
     return find_node(val) != NULL;
 }
 
@@ -204,23 +215,33 @@ void RBTree::delete_rebalance(Node* cur_node){
         else
             sibling = cur_node->Parent()->right;
         if(sibling->color == Color::RED){
-            
+            cur_node->Parent()->color = Color::RED;  
+            sibling->color = Color::BLACK;
+            left_rotate(cur_node->Parent());
         }else{
             if(IsBlack(sibling->left)&&IsBlack(sibling->right)){
                 sibling->color = Color::RED;
                 cur_node = cur_node->parent;
             }else if(IsBlack(sibling->right)){
-                 
+                //!IsBlack(sibling->left) 
+                sibling->right->color = Color::RED;
+                sibling->left->color = Color::BLACK;
+                right_rotate(sibling);
+                sibling = cur_node->Sibling();
             }else{
                 //!IsBlack(sibling->right)
                 sibling->left->color = Color::RED;
                 cur_node->parent->color = Color::BLACK;
                 left_rotate(cur_node->Parent());
-                cur_node = cur_node->parent;
+                cur_node = root;
             }
 
         }
     }
 }
 
+int main(int argc, char** argv){
+    
+    return 0;
+}
 
